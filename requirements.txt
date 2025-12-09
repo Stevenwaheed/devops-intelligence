@@ -1,0 +1,67 @@
+# Core Framework
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+Flask-CORS==4.0.0
+Flask-Caching==2.1.0
+Flask-Limiter==3.5.0
+
+# Database
+SQLAlchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.13.0
+
+# Redis
+redis==5.0.1
+hiredis==2.2.3
+
+# API & Serialization
+marshmallow==3.20.1
+marshmallow-sqlalchemy==0.29.0
+apispec==6.3.1
+apispec-webframeworks==1.0.0
+
+# Authentication & Security
+PyJWT==2.8.0
+bcrypt==4.1.2
+cryptography==41.0.7
+
+# HTTP & Requests
+requests==2.31.0
+urllib3==2.1.0
+
+# Task Queue
+celery==5.3.4
+kombu==5.3.4
+
+# Monitoring & Logging
+python-json-logger==2.0.7
+prometheus-client==0.19.0
+
+# Utilities
+python-dotenv==1.0.0
+click==8.1.7
+pydantic==2.5.2
+pydantic-settings==2.1.0
+
+# Date & Time
+python-dateutil==2.8.2
+pytz==2023.3
+
+# ML & Analytics
+numpy==1.26.2
+pandas==2.1.4
+scikit-learn==1.3.2
+
+# Development
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-flask==1.3.0
+faker==20.1.0
+black==23.12.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Production Server
+gunicorn==21.2.0
+gevent==23.9.1
