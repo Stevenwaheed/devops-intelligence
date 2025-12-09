@@ -1,0 +1,1426 @@
+{
+  "info": {
+    "name": "DevGuard API Collection",
+    "description": "Complete API collection for DevGuard DevOps Intelligence Platform",
+    "version": "1.0.0",
+    "base_url": "http://localhost:5000/api/v1"
+  },
+  "authentication": {
+    "type": "Bearer Token",
+    "header": "Authorization",
+    "format": "Bearer {token}"
+  },
+  "endpoints": {
+    "authentication": {
+      "register": {
+        "method": "POST",
+        "path": "/auth/register",
+        "description": "Register a new user and organization",
+        "authentication_required": false,
+        "rate_limit": "5 per hour",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "email": "user@example.com",
+            "password": "SecurePass123!",
+            "organization_name": "Acme Corporation"
+          },
+          "required_fields": ["email", "password", "organization_name"]
+        },
+        "response": {
+          "success": {
+            "status_code": 201,
+            "body": {
+              "data": {
+                "user": {
+                  "id": 1,
+                  "email": "user@example.com",
+                  "role": "owner"
+                },
+                "organization": {
+                  "id": 1,
+                  "name": "Acme Corporation",
+                  "subscription_tier": "free"
+                },
+                "token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+              },
+              "message": "User registered successfully"
+            }
+          },
+          "errors": {
+            "409": {
+              "error": "User with this email already exists"
+            },
+            "400": {
+              "error": "Validation error",
+              "details": {
+                "field": "Missing required field"
+              }
+            }
+          }
+        }
+      },
+      "login": {
+        "method": "POST",
+        "path": "/auth/login",
+        "description": "Authenticate user and return JWT token",
+        "authentication_required": false,
+        "rate_limit": "10 per minute",
+        "request": {
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "email": "user@example.com",
+            "password": "SecurePass123!"
+          },
+          "required_fields": ["email", "password"]
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "user": {
+                  "id": 1,
+                  "email": "user@example.com",
+                  "role": "owner",
+                  "organization_id": 1
+                },
+                "token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+              },
+              "message": "Login successful"
+            }
+          },
+          "errors": {
+            "401": {
+              "error": "Invalid email or password"
+            }
+          }
+        }
+      },
+      "get_current_user": {
+        "method": "GET",
+        "path": "/auth/me",
+        "description": "Get current authenticated user information",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}"
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "id": 1,
+                "email": "user@example.com",
+                "role": "owner",
+                "organization_id": 1,
+                "created_at": "2024-01-01T00:00:00Z",
+                "last_login": "2024-01-15T10:30:00Z"
+              }
+            }
+          }
+        }
+      },
+      "refresh_token": {
+        "method": "POST",
+        "path": "/auth/refresh",
+        "description": "Refresh JWT token",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}"
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+              },
+              "message": "Token refreshed successfully"
+            }
+          }
+        }
+      },
+      "change_password": {
+        "method": "POST",
+        "path": "/auth/change-password",
+        "description": "Change user password",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "current_password": "old_password",
+            "new_password": "new_password"
+          },
+          "required_fields": ["current_password", "new_password"]
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "message": "Password changed successfully"
+            }
+          },
+          "errors": {
+            "400": {
+              "error": "Current password is incorrect"
+            }
+          }
+        }
+      }
+    },
+    "organizations": {
+      "get_current": {
+        "method": "GET",
+        "path": "/organizations/current",
+        "description": "Get current organization details",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}"
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "id": 1,
+                "name": "Acme Corporation",
+                "subscription_tier": "pro",
+                "settings": {},
+                "member_count": 5,
+                "created_at": "2024-01-01T00:00:00Z",
+                "updated_at": "2024-01-15T10:30:00Z"
+              }
+            }
+          }
+        }
+      },
+      "update_current": {
+        "method": "PUT",
+        "path": "/organizations/current",
+        "description": "Update current organization",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "name": "Updated Name",
+            "settings": {
+              "timezone": "UTC",
+              "notifications_enabled": true
+            }
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "id": 1,
+                "name": "Updated Name",
+                "subscription_tier": "pro",
+                "settings": {
+                  "timezone": "UTC",
+                  "notifications_enabled": true
+                },
+                "updated_at": "2024-01-15T10:30:00Z"
+              },
+              "message": "Organization updated successfully"
+            }
+          }
+        }
+      },
+      "list_members": {
+        "method": "GET",
+        "path": "/organizations/members",
+        "description": "List all members of the current organization",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}"
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "members": [
+                  {
+                    "id": 1,
+                    "email": "user@example.com",
+                    "role": "owner",
+                    "created_at": "2024-01-01T00:00:00Z",
+                    "last_login": "2024-01-15T10:30:00Z"
+                  }
+                ],
+                "total": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "projects": {
+      "list": {
+        "method": "GET",
+        "path": "/projects",
+        "description": "List all projects for the current organization",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}"
+          },
+          "query_parameters": {
+            "page": 1,
+            "per_page": 20,
+            "is_active": true
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "projects": [
+                  {
+                    "id": 1,
+                    "name": "E-commerce Platform",
+                    "description": "Main e-commerce application",
+                    "tech_stack": {
+                      "languages": ["python", "javascript"],
+                      "frameworks": ["flask", "react"],
+                      "databases": ["postgresql", "redis"]
+                    },
+                    "repository_url": "https://github.com/acme/ecommerce",
+                    "is_active": true,
+                    "created_at": "2024-01-01T00:00:00Z",
+                    "updated_at": "2024-01-15T10:30:00Z"
+                  }
+                ],
+                "pagination": {
+                  "total": 1,
+                  "page": 1,
+                  "per_page": 20,
+                  "pages": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "create": {
+        "method": "POST",
+        "path": "/projects",
+        "description": "Create a new project",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}",
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "name": "E-commerce Platform",
+            "description": "Main e-commerce application",
+            "tech_stack": {
+              "languages": ["python", "javascript"],
+              "frameworks": ["flask", "react"],
+              "databases": ["postgresql", "redis"]
+            },
+            "repository_url": "https://github.com/acme/ecommerce"
+          },
+          "required_fields": ["name"]
+        },
+        "response": {
+          "success": {
+            "status_code": 201,
+            "body": {
+              "data": {
+                "id": 1,
+                "name": "E-commerce Platform",
+                "description": "Main e-commerce application",
+                "tech_stack": {
+                  "languages": ["python", "javascript"],
+                  "frameworks": ["flask", "react"],
+                  "databases": ["postgresql", "redis"]
+                },
+                "repository_url": "https://github.com/acme/ecommerce",
+                "is_active": true,
+                "created_at": "2024-01-01T00:00:00Z"
+              },
+              "message": "Project created successfully"
+            }
+          }
+        }
+      },
+      "get": {
+        "method": "GET",
+        "path": "/projects/{id}",
+        "description": "Get a specific project by ID",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}"
+          },
+          "path_parameters": {
+            "id": 1
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "id": 1,
+                "name": "E-commerce Platform",
+                "description": "Main e-commerce application",
+                "tech_stack": {
+                  "languages": ["python", "javascript"]
+                },
+                "repository_url": "https://github.com/acme/ecommerce",
+                "settings": {},
+                "is_active": true,
+                "created_at": "2024-01-01T00:00:00Z",
+                "updated_at": "2024-01-15T10:30:00Z"
+              }
+            }
+          },
+          "errors": {
+            "404": {
+              "error": "Project not found"
+            }
+          }
+        }
+      },
+      "update": {
+        "method": "PUT",
+        "path": "/projects/{id}",
+        "description": "Update a project",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}",
+            "Content-Type": "application/json"
+          },
+          "path_parameters": {
+            "id": 1
+          },
+          "body": {
+            "name": "Updated Name",
+            "description": "Updated description",
+            "tech_stack": {},
+            "repository_url": "https://github.com/acme/new-repo",
+            "is_active": true
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "id": 1,
+                "name": "Updated Name",
+                "description": "Updated description",
+                "tech_stack": {},
+                "repository_url": "https://github.com/acme/new-repo",
+                "is_active": true,
+                "updated_at": "2024-01-15T10:30:00Z"
+              },
+              "message": "Project updated successfully"
+            }
+          }
+        }
+      },
+      "delete": {
+        "method": "DELETE",
+        "path": "/projects/{id}",
+        "description": "Delete a project",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}"
+          },
+          "path_parameters": {
+            "id": 1
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "message": "Project deleted successfully"
+            }
+          }
+        }
+      }
+    },
+    "api_gateway": {
+      "providers": {
+        "list": {
+          "method": "GET",
+          "path": "/api-gateway/providers",
+          "description": "List all API providers for the organization",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "providers": [
+                    {
+                      "id": 1,
+                      "name": "OpenAI Production",
+                      "provider_type": "openai",
+                      "is_active": true,
+                      "priority_order": 1,
+                      "created_at": "2024-01-01T00:00:00Z"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "create": {
+          "method": "POST",
+          "path": "/api-gateway/providers",
+          "description": "Create a new API provider",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "name": "OpenAI Production",
+              "provider_type": "openai",
+              "credentials": "sk-...",
+              "is_active": true,
+              "priority_order": 1,
+              "extra_metadata": {}
+            },
+            "required_fields": ["name", "provider_type", "credentials"]
+          },
+          "response": {
+            "success": {
+              "status_code": 201,
+              "body": {
+                "data": {
+                  "id": 1,
+                  "name": "OpenAI Production",
+                  "provider_type": "openai"
+                },
+                "message": "Provider created successfully"
+              }
+            }
+          }
+        }
+      },
+      "requests": {
+        "list": {
+          "method": "GET",
+          "path": "/api-gateway/requests",
+          "description": "List API requests with filtering and pagination",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "query_parameters": {
+              "project_id": 1,
+              "provider_id": 1,
+              "start_date": "2024-01-01T00:00:00Z",
+              "end_date": "2024-01-31T23:59:59Z",
+              "page": 1,
+              "per_page": 20
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "requests": [
+                    {
+                      "id": 1,
+                      "project_id": 1,
+                      "provider_id": 1,
+                      "timestamp": "2024-01-15T10:30:00Z",
+                      "endpoint": "/v1/chat/completions",
+                      "method": "POST",
+                      "status_code": 200,
+                      "latency_ms": 1250.5,
+                      "cost_usd": 0.002,
+                      "tokens_used": {
+                        "prompt": 150,
+                        "completion": 75
+                      },
+                      "environment": "production"
+                    }
+                  ],
+                  "pagination": {
+                    "total": 1,
+                    "page": 1,
+                    "per_page": 20,
+                    "pages": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "log": {
+          "method": "POST",
+          "path": "/api-gateway/requests",
+          "description": "Log an API request (used by the proxy)",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "project_id": 1,
+              "provider_id": 1,
+              "endpoint": "/v1/chat/completions",
+              "method": "POST",
+              "status_code": 200,
+              "latency_ms": 1250.5,
+              "cost_usd": 0.002,
+              "tokens_used": {
+                "prompt": 150,
+                "completion": 75
+              },
+              "user_identifier": "user123",
+              "environment": "production",
+              "error_message": null,
+              "extra_metadata": {}
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 201,
+              "body": {
+                "data": {
+                  "id": 1
+                },
+                "message": "Request logged successfully"
+              }
+            }
+          }
+        }
+      },
+      "analytics": {
+        "cost": {
+          "method": "GET",
+          "path": "/api-gateway/analytics/cost",
+          "description": "Get cost analytics for API usage",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "query_parameters": {
+              "project_id": 1,
+              "days": 30
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "daily_analytics": [
+                    {
+                      "date": "2024-01-01",
+                      "total_cost": 15.5,
+                      "request_count": 1250
+                    }
+                  ],
+                  "summary": {
+                    "total_cost": 465.0,
+                    "total_requests": 37500,
+                    "average_cost_per_request": 0.0124,
+                    "period_days": 30
+                  }
+                }
+              }
+            }
+          }
+        },
+        "latency": {
+          "method": "GET",
+          "path": "/api-gateway/analytics/latency",
+          "description": "Get latency analytics for API usage",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "query_parameters": {
+              "project_id": 1,
+              "days": 7
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "latency_by_provider": [
+                    {
+                      "provider": "OpenAI Production",
+                      "avg_latency_ms": 1250.5,
+                      "min_latency_ms": 450.0,
+                      "max_latency_ms": 3500.0,
+                      "request_count": 450
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "budgets": {
+        "list": {
+          "method": "GET",
+          "path": "/api-gateway/budgets",
+          "description": "List all budgets",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "budgets": [
+                    {
+                      "id": 1,
+                      "project_id": 1,
+                      "period_start": "2024-01-01T00:00:00Z",
+                      "period_end": "2024-01-31T23:59:59Z",
+                      "allocated_amount_usd": 500.0,
+                      "spent_amount_usd": 425.0,
+                      "utilization_pct": 85.0
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "create": {
+          "method": "POST",
+          "path": "/api-gateway/budgets",
+          "description": "Create a new budget",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "project_id": 1,
+              "period_start": "2024-01-01T00:00:00Z",
+              "period_end": "2024-01-31T23:59:59Z",
+              "allocated_amount_usd": 500.0,
+              "alert_thresholds": {
+                "warning": 80,
+                "critical": 95
+              },
+              "actions_on_exceed": {
+                "throttle": true,
+                "notify": true
+              }
+            },
+            "required_fields": ["project_id", "period_start", "period_end", "allocated_amount_usd"]
+          },
+          "response": {
+            "success": {
+              "status_code": 201,
+              "body": {
+                "data": {
+                  "id": 1,
+                  "project_id": 1
+                },
+                "message": "Budget created successfully"
+              }
+            }
+          }
+        }
+      }
+    },
+    "database_optimizer": {
+      "connections": {
+        "list": {
+          "method": "GET",
+          "path": "/database-optimizer/connections",
+          "description": "List all database connections",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "connections": [
+                    {
+                      "id": 1,
+                      "project_id": 1,
+                      "name": "Production PostgreSQL",
+                      "database_type": "postgresql",
+                      "is_active": true,
+                      "created_at": "2024-01-01T00:00:00Z"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "create": {
+          "method": "POST",
+          "path": "/database-optimizer/connections",
+          "description": "Create a new database connection",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "project_id": 1,
+              "name": "Production PostgreSQL",
+              "database_type": "postgresql",
+              "connection_string": "postgresql://user:pass@localhost:5432/db",
+              "is_active": true
+            },
+            "required_fields": ["project_id", "name", "database_type", "connection_string"]
+          },
+          "response": {
+            "success": {
+              "status_code": 201,
+              "body": {
+                "data": {
+                  "id": 1,
+                  "name": "Production PostgreSQL"
+                },
+                "message": "Connection created successfully"
+              }
+            }
+          }
+        }
+      },
+      "query_patterns": {
+        "list": {
+          "method": "GET",
+          "path": "/database-optimizer/query-patterns",
+          "description": "List query patterns with filtering and pagination",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "query_parameters": {
+              "connection_id": 1,
+              "start_date": "2024-01-01T00:00:00Z",
+              "end_date": "2024-01-31T23:59:59Z",
+              "min_execution_time": 100,
+              "page": 1,
+              "per_page": 20
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "query_patterns": [
+                    {
+                      "id": 1,
+                      "connection_id": 1,
+                      "query_fingerprint": "a1b2c3d4e5f6",
+                      "query_structure": "SELECT * FROM users WHERE id = ?",
+                      "execution_time_ms": 245.8,
+                      "rows_examined": 10000,
+                      "rows_returned": 1,
+                      "timestamp": "2024-01-15T10:30:00Z"
+                    }
+                  ],
+                  "pagination": {
+                    "total": 1,
+                    "page": 1,
+                    "per_page": 20,
+                    "pages": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "log": {
+          "method": "POST",
+          "path": "/database-optimizer/query-patterns",
+          "description": "Log a query pattern (used by the monitoring agent)",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "connection_id": 1,
+              "query_fingerprint": "a1b2c3d4e5f6",
+              "query_structure": "SELECT * FROM users WHERE id = ?",
+              "execution_time_ms": 245.8,
+              "rows_examined": 10000,
+              "rows_returned": 1,
+              "index_usage": {
+                "used_indexes": [],
+                "suggested_indexes": ["idx_users_id"]
+              },
+              "explain_plan": {
+                "plan_type": "Seq Scan",
+                "cost": 1000.0
+              }
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 201,
+              "body": {
+                "data": {
+                  "id": 1
+                },
+                "message": "Query pattern logged successfully"
+              }
+            }
+          }
+        }
+      },
+      "optimizations": {
+        "list": {
+          "method": "GET",
+          "path": "/database-optimizer/optimizations",
+          "description": "List query optimizations",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "query_parameters": {
+              "connection_id": 1,
+              "is_applied": false,
+              "min_improvement": 20
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "optimizations": [
+                    {
+                      "id": 1,
+                      "connection_id": 1,
+                      "optimization_type": "index",
+                      "title": "Add index on users.id",
+                      "description": "Creating an index will improve query performance",
+                      "estimated_improvement_pct": 75.0,
+                      "implementation_sql": "CREATE INDEX idx_users_id ON users(id)",
+                      "is_applied": false,
+                      "created_at": "2024-01-15T10:30:00Z"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "apply": {
+          "method": "POST",
+          "path": "/database-optimizer/optimizations/{id}/apply",
+          "description": "Mark an optimization as applied",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "path_parameters": {
+              "id": 1
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "id": 1,
+                  "is_applied": true,
+                  "applied_at": "2024-01-15T10:30:00Z"
+                },
+                "message": "Optimization marked as applied"
+              }
+            }
+          }
+        }
+      },
+      "analytics": {
+        "performance": {
+          "method": "GET",
+          "path": "/database-optimizer/analytics/performance",
+          "description": "Get database performance analytics",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "query_parameters": {
+              "connection_id": 1,
+              "days": 7
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "daily_metrics": [
+                    {
+                      "date": "2024-01-01",
+                      "avg_execution_time_ms": 125.5,
+                      "query_count": 10000,
+                      "slow_query_count": 50
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "slow_queries": {
+          "method": "GET",
+          "path": "/database-optimizer/analytics/slow-queries",
+          "description": "Get top slow queries",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "query_parameters": {
+              "limit": 10,
+              "days": 7
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "slow_queries": [
+                    {
+                      "query_fingerprint": "a1b2c3",
+                      "query_structure": "SELECT * FROM orders WHERE...",
+                      "avg_execution_time_ms": 1250.5,
+                      "max_execution_time_ms": 3500.0,
+                      "execution_count": 450
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependency_scanner": {
+      "scans": {
+        "list": {
+          "method": "GET",
+          "path": "/dependency-scanner/scans",
+          "description": "List dependency scans",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "query_parameters": {
+              "project_id": 1,
+              "ecosystem": "npm",
+              "page": 1,
+              "per_page": 20
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "scans": [
+                    {
+                      "id": 1,
+                      "project_id": 1,
+                      "ecosystem": "npm",
+                      "scan_trigger": "manual",
+                      "total_dependencies": 250,
+                      "total_vulnerabilities": 8,
+                      "overall_risk_score": 42.5,
+                      "scan_duration_ms": 5500,
+                      "created_at": "2024-01-15T10:30:00Z"
+                    }
+                  ],
+                  "pagination": {
+                    "total": 1,
+                    "page": 1,
+                    "per_page": 20,
+                    "pages": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "create": {
+          "method": "POST",
+          "path": "/dependency-scanner/scans",
+          "description": "Create a new dependency scan",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "project_id": 1,
+              "ecosystem": "npm",
+              "scan_trigger": "manual",
+              "total_dependencies": 250,
+              "total_vulnerabilities": 8,
+              "overall_risk_score": 42.5,
+              "scan_duration_ms": 5500
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 201,
+              "body": {
+                "data": {
+                  "id": 1,
+                  "project_id": 1
+                },
+                "message": "Scan created successfully"
+              }
+            }
+          }
+        },
+        "get": {
+          "method": "GET",
+          "path": "/dependency-scanner/scans/{id}",
+          "description": "Get detailed scan information including dependencies",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "path_parameters": {
+              "id": 1
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "id": 1,
+                  "project_id": 1,
+                  "ecosystem": "npm",
+                  "total_dependencies": 250,
+                  "total_vulnerabilities": 8,
+                  "overall_risk_score": 42.5,
+                  "dependencies": [
+                    {
+                      "id": 1,
+                      "name": "express",
+                      "version": "4.18.0",
+                      "vulnerability_count": 0,
+                      "risk_score": 0
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependencies": {
+        "get": {
+          "method": "GET",
+          "path": "/dependency-scanner/dependencies/{id}",
+          "description": "Get detailed dependency information",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "path_parameters": {
+              "id": 1
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "id": 1,
+                  "scan_id": 1,
+                  "name": "express",
+                  "version": "4.18.0",
+                  "latest_version": "4.18.2",
+                  "is_direct": true,
+                  "license": "MIT",
+                  "vulnerabilities": [],
+                  "maintenance_metrics": {
+                    "last_publish_days_ago": 30,
+                    "commit_frequency": "high"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "vulnerabilities": {
+        "list": {
+          "method": "GET",
+          "path": "/dependency-scanner/vulnerabilities",
+          "description": "List vulnerabilities across all projects",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "query_parameters": {
+              "project_id": 1,
+              "severity": "critical",
+              "exploit_available": true
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "vulnerabilities": [
+                    {
+                      "id": 1,
+                      "dependency_id": 1,
+                      "cve_id": "CVE-2024-1234",
+                      "severity": "critical",
+                      "cvss_score": 9.8,
+                      "description": "Remote code execution vulnerability",
+                      "exploit_available": true,
+                      "fixed_version": "4.18.2",
+                      "published_date": "2024-01-01T00:00:00Z"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "analytics": {
+        "risk_summary": {
+          "method": "GET",
+          "path": "/dependency-scanner/analytics/risk-summary",
+          "description": "Get risk summary across all projects",
+          "authentication_required": true,
+          "request": {
+            "headers": {
+              "Authorization": "Bearer {token}"
+            },
+            "query_parameters": {
+              "project_id": 1
+            }
+          },
+          "response": {
+            "success": {
+              "status_code": 200,
+              "body": {
+                "data": {
+                  "projects": [
+                    {
+                      "project_id": 1,
+                      "project_name": "E-commerce Platform",
+                      "total_dependencies": 250,
+                      "total_vulnerabilities": 8,
+                      "overall_risk_score": 42.5,
+                      "last_scan": "2024-01-15T10:30:00Z"
+                    }
+                  ],
+                  "summary": {
+                    "total_dependencies": 250,
+                    "total_vulnerabilities": 8,
+                    "average_risk_score": 42.5,
+                    "projects_scanned": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "insights": {
+      "list": {
+        "method": "GET",
+        "path": "/insights",
+        "description": "List AI-generated insights",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}"
+          },
+          "query_parameters": {
+            "project_id": 1,
+            "category": "cost",
+            "severity": "critical",
+            "resolved": false,
+            "page": 1,
+            "per_page": 20
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "insights": [
+                  {
+                    "id": 1,
+                    "project_id": 1,
+                    "category": "cost",
+                    "severity": "critical",
+                    "title": "API costs exceeding budget",
+                    "description": "Your API costs are 150% of allocated budget",
+                    "evidence": {
+                      "current_spend": 750.0,
+                      "budget": 500.0
+                    },
+                    "recommended_actions": [
+                      "Review API usage patterns",
+                      "Consider switching to cheaper provider"
+                    ],
+                    "estimated_impact": {
+                      "cost_savings_usd": 250.0
+                    },
+                    "created_at": "2024-01-15T10:30:00Z",
+                    "acknowledged_at": null,
+                    "resolved_at": null
+                  }
+                ],
+                "pagination": {
+                  "total": 1,
+                  "page": 1,
+                  "per_page": 20,
+                  "pages": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "acknowledge": {
+        "method": "POST",
+        "path": "/insights/{id}/acknowledge",
+        "description": "Acknowledge an insight",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}"
+          },
+          "path_parameters": {
+            "id": 1
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "id": 1,
+                "acknowledged_at": "2024-01-15T10:30:00Z"
+              },
+              "message": "Insight acknowledged"
+            }
+          }
+        }
+      },
+      "resolve": {
+        "method": "POST",
+        "path": "/insights/{id}/resolve",
+        "description": "Mark an insight as resolved",
+        "authentication_required": true,
+        "request": {
+          "headers": {
+            "Authorization": "Bearer {token}"
+          },
+          "path_parameters": {
+            "id": 1
+          }
+        },
+        "response": {
+          "success": {
+            "status_code": 200,
+            "body": {
+              "data": {
+                "id": 1,
+                "resolved_at": "2024-01-15T10:30:00Z"
+              },
+              "message": "Insight resolved"
+            }
+          }
+        }
+      }
+    }
+  },
+  "error_codes": {
+    "200": "Success",
+    "201": "Created",
+    "400": "Bad Request - Validation error",
+    "401": "Unauthorized - Missing or invalid token",
+    "404": "Not Found - Resource not found",
+    "409": "Conflict - Duplicate resource",
+    "429": "Too Many Requests - Rate limit exceeded",
+    "500": "Internal Server Error"
+  }
+}
